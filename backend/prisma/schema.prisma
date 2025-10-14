@@ -1,0 +1,66 @@
+// Prisma schema for Neon Postgres
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  dateOfBirth  DateTime?
+  gender       String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  chats        Chat[]
+  medicalFiles MedicalFile[]
+}
+
+model MedicalFile {
+  id           String   @id @default(uuid())
+  userId       String
+  filename     String
+  originalName String
+  fileUrl      String
+  fileType     String
+  fileSize     Int
+  extractedData Json?
+  category     String   @default("other")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+}
+
+model Chat {
+  id        String    @id @default(uuid())
+  userId    String
+  title     String
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@index([userId])
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  chatId    String
+  role      String
+  content   String
+  timestamp DateTime @default(now())
+
+  chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  @@index([chatId])
+}
