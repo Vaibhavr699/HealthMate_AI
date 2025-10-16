@@ -23,3 +23,4 @@ const InlineLoader = ({ size = 'md', color = 'indigo' }) => {
 export default InlineLoader;
 
 
+
